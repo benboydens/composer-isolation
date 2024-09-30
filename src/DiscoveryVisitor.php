@@ -13,8 +13,7 @@ final class DiscoveryVisitor extends NodeVisitorAbstract
      *
      * @var array
      */
-    private $namespaces;
-
+    private array $namespaces;
     /**
      * Class constructor
      */
@@ -22,7 +21,6 @@ final class DiscoveryVisitor extends NodeVisitorAbstract
     {
         $this->namespaces = [];
     }
-
     /**
      * {@inheritdoc}
      */
@@ -30,17 +28,16 @@ final class DiscoveryVisitor extends NodeVisitorAbstract
     {
         if ($node instanceof Namespace_) {
             if (isset($node->name)) {
-                $this->namespaces[implode($node->name->parts, '\\')] = true;
+                $this->namespaces[implode('\\', $node->name->getParts())] = true;
             }
         }
     }
-
     /**
      * Get the list of discovered namespaces
      *
      * @return array
      */
-    public function getNamespaces()
+    public function getNamespaces(): array
     {
         return $this->namespaces;
     }

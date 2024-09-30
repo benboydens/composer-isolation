@@ -20,56 +20,56 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
     /**
      * The name of this package
      */
-    const PACKAGENAME = 'and/isolate-composer';
+    const PACKAGENAME = 'benboydens/isolate-composer';
 
     /**
      * Reference to the running Composer instance
      *
      * @var Composer
      */
-    private $composer;
+    private Composer $composer;
 
     /**
      * Namespace prefix
      *
      * @var string
      */
-    private $prefix;
+    private string $prefix;
 
     /**
      * Namespace checker
      *
      * @var NamespaceChecker
      */
-    private $checker;
+    private NamespaceChecker $checker;
 
     /**
      * Package blacklist
      *
      * @var array
      */
-    private $blacklist;
+    private array $blacklist;
 
     /**
      * Prefix require-dev packages?
      *
      * @var bool
      */
-    private $pkgdev;
+    private bool $pkgdev;
 
     /**
      * Replacements
      *
      * @var array
      */
-    private $replacements;
+    private array $replacements;
 
     /**
      * Autorun?
      *
      * @var bool
      */
-    private static $autorun;
+    private static bool $autorun;
 
     /**
      * Initialization
@@ -151,7 +151,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
      *
      * @return array
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         $events = [
             '__isolate-dependencies' => [
@@ -173,7 +173,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
      *
      * @return array
      */
-    public function getCapabilities()
+    public function getCapabilities(): array
     {
         return [
             'Composer\\Plugin\\Capability\\CommandProvider' => 'Ox6d617474\\Isolate\\CommandProvider',
@@ -237,7 +237,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
             $repo->removePackage($package);
             $this->mutatePackage($package);
             $repo->addPackage($package);
-            $repo->write();
+            $repo->write($package->isDev(), $this->composer->getInstallationManager());
 
             // Rewrite the files in vendor to use the prefixed namespaces
             $this->rewritePackage($package);
@@ -252,9 +252,9 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
         $repo = $this->composer->getRepositoryManager()->getLocalRepository();
         $packages = $repo->getCanonicalPackages();
         $installManager = $this->composer->getInstallationManager();
-        $vendorsDir = rtrim(dirname(dirname($installManager->getInstallPath($packages[0]))), '\\/');
+        $vendorsDir = rtrim(dirname($installManager->getInstallPath($packages[0]), 2), '\\/');
 
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $parser = (new ParserFactory())->createForHostVersion();
         $printer = new Standard();
 
         // Iterate over static files
@@ -277,7 +277,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
                 $stmts = $parser->parse($contents);
                 $stmts = $traverser->traverse($stmts);
 
-                // Only write if we actually did a transform. Otherwise leave it alone
+                // Only write if we actually did a transform. Otherwise, leave it alone
                 if ($visitor->didTransform()) {
                     file_put_contents($filepath, $printer->prettyPrintFile($stmts));
                 }
@@ -337,7 +337,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
         $namespaces = [];
         $contents = file_get_contents($filepath);
 
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $parser = (new ParserFactory())->createForHostVersion();
         $traverser = new NodeTraverser();
         $visitor = new DiscoveryVisitor();
         $traverser->addVisitor($visitor);
@@ -434,7 +434,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
         $transformed = false;
         $contents = file_get_contents($filepath);
 
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
+        $parser = (new ParserFactory())->createForHostVersion();
         $prettyPrinter = new Standard();
         $traverser = new NodeTraverser();
         $visitor = new NodeVisitor($this->prefix, $this->checker);
@@ -544,5 +544,13 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
                 }
             }
         }
+    }
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
     }
 }

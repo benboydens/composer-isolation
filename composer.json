@@ -1,23 +1,24 @@
 {
-  "name": "and/isolate-composer",
-  "description": "Isolates composer dependencies by prefixing namespace for all vendor code within a project",
-  "license": "MIT",
-  "minimum-stability": "alpha",
-  "type": "composer-plugin",
-  "require": {
-    "composer-plugin-api": "^1.1",
-    "nikic/php-parser": "~3.0"
-  },
-  "require-dev": {
-    "composer/composer": "^1.4",
-    "friendsofphp/php-cs-fixer": "^2.3"
-  },
-  "autoload":{
-    "psr-4":{
-      "Ox6d617474\\Isolate\\":"src/"
+    "name": "benboydens/isolate-composer",
+    "description": "Isolates composer dependencies by prefixing namespace for all vendor code within a project",
+    "license": "MIT",
+    "minimum-stability": "alpha",
+    "type": "composer-plugin",
+    "require": {
+        "php": "^8.0",
+        "composer-plugin-api": "^2.0",
+        "nikic/php-parser": "^5.3"
+    },
+    "require-dev": {
+        "composer/composer": "^2.0",
+        "friendsofphp/php-cs-fixer": "^3.64"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ox6d617474\\Isolate\\": "src/"
+        }
+    },
+    "extra": {
+        "class": "Ox6d617474\\Isolate\\Plugin"
     }
-  },
-  "extra": {
-    "class": "Ox6d617474\\Isolate\\Plugin"
-  }
 }

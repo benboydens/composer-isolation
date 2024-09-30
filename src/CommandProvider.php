@@ -9,7 +9,7 @@ final class CommandProvider implements CommandProviderCapability
     /**
      * {@inheritdoc}
      */
-    public function getCommands()
+    public function getCommands(): array
     {
         return [new Command()];
     }

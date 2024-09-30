@@ -14,21 +14,21 @@ final class NodeVisitor extends NodeVisitorAbstract
      *
      * @var string
      */
-    private $prefix;
+    private string $prefix;
 
     /**
      * Namespace checker
      *
      * @var NamespaceChecker
      */
-    private $checker;
+    private NamespaceChecker $checker;
 
     /**
      * Did we perform a transform?
      *
      * @var bool
      */
-    private $transformed;
+    private bool $transformed;
 
     /**
      * Current namespace
@@ -42,15 +42,15 @@ final class NodeVisitor extends NodeVisitorAbstract
      *
      * @var array
      */
-    private $aliases;
+    private array $aliases;
 
     /**
      * Class constructor
      *
-     * @param string           $prefix
+     * @param string $prefix
      * @param NamespaceChecker $checker
      */
-    public function __construct($prefix, NamespaceChecker $checker)
+    public function __construct(string $prefix, NamespaceChecker $checker)
     {
         $this->prefix = $prefix;
         $this->checker = $checker;
@@ -68,9 +68,9 @@ final class NodeVisitor extends NodeVisitorAbstract
             // No name means global namespace, so leave it alone
             if (isset($node->name)) {
                 // Keep track of the current namespace
-                $this->namespace = implode($node->name->parts, '\\');
+                $this->namespace = implode('\\', $node->name->getParts());
 
-                $node->name->parts = $this->transformNamespace($node->name->parts);
+                $node->name->name = join('\\', $this->transformNamespace($node->name->getParts()));
             }
         } elseif ($node instanceof Node\Stmt\Use_) {
             foreach ($node->uses as $use) {
@@ -78,16 +78,16 @@ final class NodeVisitor extends NodeVisitorAbstract
                     // Keep track of any aliases being used
                     $this->aliases[] = $use->alias;
                 }
-                if (count($use->name->parts) > 1) { // Single part means global, so ignore
+                if (count($use->name->getParts()) > 1) { // Single part means global, so ignore
                     // Split off the classname and transform the namespace
-                    $ns = $use->name->parts;
+                    $ns = $use->name->getParts();
                     $i =  count($ns) - 1;
                     $ns = array_slice($ns, 0, $i);
                     $ns = $this->transformNamespace($ns);
 
                     // Put the classname back on and override
-                    $ns[] = $use->name->parts[$i];
-                    $use->name->parts = array_filter($ns);
+                    $ns[] = $use->name->getParts()[$i];
+                    $use->name->name = join('\\', array_filter($ns));
                 }
             }
         } elseif ($node instanceof String_) {
@@ -110,12 +110,12 @@ final class NodeVisitor extends NodeVisitorAbstract
             }
         } elseif ($node instanceof Node\Name) {
             if ($node->isFullyQualified() || $this->namespace == '__global__') {
-                if (count($node->parts) > 1) { // Single part means global, so ignores
+                if (count($node->getParts()) > 1) { // Single part means global, so ignores
                     // If the first part is aliased, then we don't need to transform
                     // The alias should already be transformed properly
                     $aliased = false;
                     foreach ($this->aliases as $alias) {
-                        if ($node->parts[0] == $alias) {
+                        if ($node->getParts()[0] == $alias) {
                             $aliased = true;
                             break;
                         }
@@ -123,14 +123,14 @@ final class NodeVisitor extends NodeVisitorAbstract
 
                     if (!$aliased) {
                         // Split off the classname and transform the namespace
-                        $ns = $node->parts;
+                        $ns = $node->getParts();
                         $i = count($ns) - 1;
                         $ns = array_slice($ns, 0, $i);
                         $ns = $this->transformNamespace($ns);
 
                         // Put the classname back on and override
-                        $ns[] = $node->parts[$i];
-                        $node->parts = array_filter($ns);
+                        $ns[] = $node->getParts()[$i];
+                        $node->name = join('\\', array_filter($ns));
                     }
                 }
             }
@@ -144,10 +144,10 @@ final class NodeVisitor extends NodeVisitorAbstract
      *
      * @return array
      */
-    private function transformNamespace(array $parts)
+    private function transformNamespace(array $parts): array
     {
         // Build the exploded namespace into a string with a slash at the end
-        $string = sprintf('%s\\', trim(implode($parts, '\\'), '\\'));
+        $string = sprintf('%s\\', trim(implode('\\', $parts), '\\'));
 
         // Prepend the prefix
         if ($this->checker->shouldTransform($string)) {
@@ -163,7 +163,7 @@ final class NodeVisitor extends NodeVisitorAbstract
      *
      * @return bool
      */
-    public function didTransform()
+    public function didTransform(): bool
     {
         return $this->transformed;
     }

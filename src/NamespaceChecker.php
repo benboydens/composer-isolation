@@ -9,14 +9,14 @@ final class NamespaceChecker
      *
      * @var array
      */
-    private $namespaces;
+    private array $namespaces;
 
     /**
      * Prefix
      *
      * @var string
      */
-    private $prefix;
+    private string $prefix;
 
     /**
      * Class constructor
@@ -24,7 +24,7 @@ final class NamespaceChecker
      * @param array  $namespaces
      * @param string $prefix
      */
-    public function __construct(array $namespaces, $prefix)
+    public function __construct(array $namespaces, string $prefix)
     {
         $this->namespaces = $namespaces;
         $this->prefix = $prefix;
@@ -37,7 +37,7 @@ final class NamespaceChecker
      *
      * @return bool
      */
-    public static function isNamespace($string)
+    public static function isNamespace(string $string): bool
     {
         // Must contain a backslash, and may only contain alphanumeric and underscore
         if (!preg_match('/^[0-9a-z_\\\]+$/i', $string) || !preg_match('/[\\\]+/i', $string)) {
@@ -58,7 +58,6 @@ final class NamespaceChecker
         foreach ($parts as $part) {
             if (preg_match('/^[0-9]+/', $part)) {
                 return false;
-                break;
             }
         }
 
@@ -72,7 +71,7 @@ final class NamespaceChecker
      *
      * @return bool
      */
-    public function shouldTransform($string)
+    public function shouldTransform(string $string): bool
     {
         // Never transform non-namespace strings
         if (!self::isNamespace($string)) {

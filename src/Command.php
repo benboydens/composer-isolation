@@ -20,8 +20,9 @@ final class Command extends BaseCommand
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->getComposer()->getEventDispatcher()->dispatch('__isolate-dependencies');
+        $this->requireComposer()->getEventDispatcher()->dispatch('__isolate-dependencies');
+        return self::SUCCESS;
     }
 }

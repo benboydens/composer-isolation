@@ -35,14 +35,12 @@ abstract class AbstractVisitor extends NodeVisitorAbstract
     {
         return $this->transformed;
     }
-
     protected function transformFilehashArray(Node\Expr\Array_ $arrayNode)
     {
         $printer = new Standard();
-        $parser = (new ParserFactory())->create(ParserFactory::PREFER_PHP7);
-
+        $parser = (new ParserFactory())->createForHostVersion();
         foreach ($arrayNode->items as $i => $item) {
-            if ($item->key instanceof Node\Scalar\String_ and false === strpos($item->key->value, 'isolated-')) {
+            if ($item->key instanceof Node\Scalar\String_ and !str_contains($item->key->value, 'isolated-')) {
                 // Let's cook some pretty key
                 $key = 'isolated-' .
                     strtolower(str_replace(dirname(dirname(dirname($this->vendorsDir))), '', $this->vendorsDir)) .

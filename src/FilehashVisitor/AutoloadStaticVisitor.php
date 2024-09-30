@@ -7,7 +7,7 @@ use PhpParser\Node;
 class AutoloadStaticVisitor extends AbstractVisitor
 {
 
-    private $entered = false;
+    private bool $entered = false;
 
     /**
      * {@inheritdoc}
@@ -24,7 +24,7 @@ class AutoloadStaticVisitor extends AbstractVisitor
      *
      * @return bool
      */
-    public function didTransform()
+    public function didTransform(): bool
     {
         return $this->transformed;
     }
