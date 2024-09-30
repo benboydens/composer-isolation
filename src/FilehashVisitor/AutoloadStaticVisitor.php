@@ -22,9 +22,9 @@ class AutoloadStaticVisitor extends AbstractVisitor
     /**
      * Did we perform a transformation
      *
-     * @return bool
+     * @return bool|null
      */
-    public function didTransform(): bool
+    public function didTransform(): ?bool
     {
         return $this->transformed;
     }
