@@ -126,6 +126,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
         foreach ($replacements as $file => $dict) {
             unset($replacements[$file]);
             $file = sprintf('%s/%s', $vendor, $file);
+            $file = str_replace('/', DIRECTORY_SEPARATOR, $file);
             $replacements[$file] = $dict;
         }
 
@@ -446,7 +447,7 @@ final class Plugin implements PluginInterface, EventSubscriberInterface, Capable
                 $contents = $prettyPrinter->prettyPrintFile($stmts);
                 $transformed = true;
             }
-
+            $filepath = str_replace('/', DIRECTORY_SEPARATOR, $filepath);
             if (isset($this->replacements[$filepath])) {
                 foreach ($this->replacements[$filepath] as $search => $replace) {
                     $contents = str_replace($search, $replace, $contents);
